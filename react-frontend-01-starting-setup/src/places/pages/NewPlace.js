@@ -3,7 +3,7 @@ import React, { useCallback, useReducer } from 'react'
 import Input from '../../shared/components/FormElements/Input'
 import Button from '../../shared/components/FormElements/Button'
 import { VALIDATOR_MINLENGTH, VALIDATOR_REQUIRE } from '../../shared/util/validators'
-import './NewPlace.css'
+import './FormPlace.css'
 
 const formReducer = (state, action) => {
   switch (action.type) {
@@ -34,16 +34,20 @@ const NewPlace = () => {
   const [formState, dispatch] = useReducer(formReducer, {
     inputs: {
       title: {
-        value: '',
-        isValid: false
+        value: "",
+        isValid: false,
       },
       description: {
-        value: '',
-        isValid: false
-      }
+        value: "",
+        isValid: false,
+      },
+      address: {
+        value: "",
+        isValid: false,
+      },
     },
     isValid: false,
-  })
+  });
 
   const inputHandler = useCallback((id, value, isValid) => {
     dispatch({type: 'INPUT_CHANGE', value: value, isValid: isValid, inputId: id})
