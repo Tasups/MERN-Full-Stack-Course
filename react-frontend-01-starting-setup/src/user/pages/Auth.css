@@ -13,3 +13,8 @@
 .authentication form {
   margin-bottom: 1rem;
 }
+
+.authentication label {
+  text-align: left;
+  margin-left: 0.25rem;
+}
