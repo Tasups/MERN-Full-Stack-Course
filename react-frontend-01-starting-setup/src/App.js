@@ -7,7 +7,7 @@ import MainNavigation from './shared/components/Navigation/MainNavigation'
 import NewPlace from './places/pages/NewPlace'
 import UserPlaces from './places/pages/UserPlaces'
 import UpdatePlace from './places/pages/UpdatePlace'
-import AuthContext from './shared/context/auth-context'
+import { AuthContext } from './shared/context/auth-context'
 
 const App = () => {
   
