@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "assert": "^2.0.0",
+    "buffer": "^6.0.3",
+    "node-fetch": "^2.6.1",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-router-dom": "5.3.3",

@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react'
+import fetch from 'node-fetch'
 
 import Card from '../../shared/components/UIElements/Card'
 import Button from '../../shared/components/FormElements/Button'
@@ -26,9 +27,32 @@ const Auth = () => {
   },
   false)
   
-  const authSubmitHandler = (event) => {
+  const authSubmitHandler = async (event) => {
     event.preventDefault()
-    console.log(formState.inputs)
+    
+    if (isLoginMode) {
+      
+    } else {
+      try {
+         // the ip address may change, so check before running
+        const response = await fetch('http://18.116.202.37:8081/api/users/signup', {
+          method: 'POST', 
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: formState.inputs.name.value,
+            email: formState.inputs.email.value,
+            password: formState.inputs.password.value
+          })
+        })
+        const responseData = await response.json()
+        console.log(responseData)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+  
     auth.login()
   }
   
