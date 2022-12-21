@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react'
-import fetch from 'node-fetch'
+import axios from 'axios'
 
 import Card from '../../shared/components/UIElements/Card'
 import Button from '../../shared/components/FormElements/Button'
@@ -8,6 +8,8 @@ import { VALIDATOR_EMAIL, VALIDATOR_MINLENGTH, VALIDATOR_REQUIRE } from '../../s
 import { useForm } from '../../shared/hooks/form-hook'
 import { AuthContext } from '../../shared/context/auth-context'
 import './Auth.css'
+
+const baseURL = 'http://3.144.22.253:8081/api'
 
 const Auth = () => {
   
@@ -33,24 +35,46 @@ const Auth = () => {
     if (isLoginMode) {
       
     } else {
+      
+  const userPostCall = async () => {
       try {
-         // the ip address may change, so check before running
-        const response = await fetch('http://18.116.202.37:8081/api/users/signup', {
-          method: 'POST', 
+        const { data } = await axios.post(`${baseURL}/user/signup`,  {
+          // your expected POST request payload goes here
+          name: formState.inputs.name.value,
+          email: formState.inputs.name.value,
+          password: formState.inputs.password.value,
           headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            name: formState.inputs.name.value,
-            email: formState.inputs.email.value,
-            password: formState.inputs.password.value
-          })
+             'Content-Type': 'application/json'
+           },
         })
-        const responseData = await response.json()
-        console.log(responseData)
-      } catch (err) {
-        console.log(err)
+        // enter you logic when the fetch is successful
+        // data.json()
+        console.log(`data: `, data)
+      } catch (error) {
+        // enter your logic for when there is an error (ex. error toast)
+        console.log(`error: `, error)
       }
+    }
+
+
+  userPostCall()
+  
+    //     const response = await axios.post('http://3.144.22.253:8081/api/users/signup', {
+    //       method: 'POST', 
+    //       headers: {
+    //         'Content-Type': 'application/json'
+    //       },
+    //       body: JSON.stringify({
+    //         name: formState.inputs.name.value,
+    //         email: formState.inputs.email.value,
+    //         password: formState.inputs.password.value
+    //       })
+    //     })
+    //     const responseData = await response.json()
+    //     console.log(responseData)
+    //   } catch (err) {
+    //     console.log(err)
+    //   }
     }
   
     auth.login()
