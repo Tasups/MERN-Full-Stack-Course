@@ -9,7 +9,7 @@ import { useForm } from '../../shared/hooks/form-hook'
 import { AuthContext } from '../../shared/context/auth-context'
 import './Auth.css'
 
-const baseURL = 'http://192.168.1.117:8081/api'
+const baseURL = 'http://localhost:5000/api'
 
 const Auth = () => {
   
@@ -35,45 +35,26 @@ const Auth = () => {
     if (isLoginMode) {
       
     } else {
-      const userPostCall = async () => {
         try {
-          const data = await fetch(`${baseURL}/user/signup`, {
-            name: formState.inputs.name.value,
-            email: formState.inputs.email.value,
-            password: formState.inputs.password.value,
+          const response = await fetch(`${baseURL}/users/signup`, {
+            method: "POST",
+            body: JSON.stringify({
+              name: formState.inputs.name.value,
+              email: formState.inputs.email.value,
+              password: formState.inputs.password.value,
+            }),
             headers: {
-              'Content-Type': 'application/json'
-            },
-          })
-          console.log('data: ', data)
+              "Content-Type": "application/json",
+            }
+          });
+
+          const responseData = await response.json()
+          console.log(responseData)
         } catch(error) {
           console.log('error: ', error)
         }
-      }
-      
-      // const userPostCall = async () => {
-      //     try {
-      //       const { data } = await axios.post(`${baseURL}/user/signup`,  {
-      //         // your expected POST request payload goes here
-      //         name: formState.inputs.name.value,
-      //         email: formState.inputs.email.value,
-      //         password: formState.inputs.password.value,
-      //         headers: {
-      //           'Content-Type': 'application/json'
-      //         },
-      //       })
-      //       // enter you logic when the fetch is successful
-      //       // data.json()
-      //       console.log(`data: `, data)
-      //     } catch (error) {
-      //       // enter your logic for when there is an error (ex. error toast)
-      //       console.log(`error: `, error)
-      //     }
-      //   }
-
-
-      userPostCall()
-      }
+    }
+    
     auth.login()
   }
   
