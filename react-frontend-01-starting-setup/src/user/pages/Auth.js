@@ -34,12 +34,34 @@ const Auth = () => {
   
   const authSubmitHandler = async (event) => {
     event.preventDefault()
+    setIsLoading(true);
     
     if (isLoginMode) {
-      
+      try {
+        const response = await fetch(`${baseURL}/users/login`, {
+          method: "POST",
+          body: JSON.stringify({
+            email: formState.inputs.email.value,
+            password: formState.inputs.password.value,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        const responseData = await response.json();
+        if (!response.ok) {
+          throw new Error(responseData.message);
+        }
+        setIsLoading(false);
+        auth.login();
+      } catch (error) {
+        console.log("error: ", error);
+        setIsLoading(false);
+        setError(error.message || "Something went wrong, please try again.");
+      }
     } else {
       try {
-        setIsLoading(true)
           const response = await fetch(`${baseURL}/users/signup`, {
             method: "POST",
             body: JSON.stringify({
@@ -56,7 +78,6 @@ const Auth = () => {
         if (!response.ok) {
           throw new Error(responseData.message)
         }
-        console.log(responseData)
         setIsLoading(false)
         auth.login();
         } catch(error) {
