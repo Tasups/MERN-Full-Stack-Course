@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "assert": "^2.0.0",
+    "axios": "^1.2.1",
+    "buffer": "^6.0.3",
+    "node": "17.5",
+    "node-fetch": "^2.6.1",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-router-dom": "5.3.3",
@@ -10,8 +15,8 @@
     "react-transition-group": "^4.4.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-scripts --openssl-legacy-provider start",
+    "build": "react-scripts --openssl-legacy-provider build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

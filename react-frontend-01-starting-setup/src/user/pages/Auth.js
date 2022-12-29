@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react'
+import fetch from 'node-fetch'
 
 import Card from '../../shared/components/UIElements/Card'
 import Button from '../../shared/components/FormElements/Button'
@@ -7,6 +8,8 @@ import { VALIDATOR_EMAIL, VALIDATOR_MINLENGTH, VALIDATOR_REQUIRE } from '../../s
 import { useForm } from '../../shared/hooks/form-hook'
 import { AuthContext } from '../../shared/context/auth-context'
 import './Auth.css'
+
+const baseURL = 'http://localhost:5000/api'
 
 const Auth = () => {
   
@@ -26,9 +29,32 @@ const Auth = () => {
   },
   false)
   
-  const authSubmitHandler = (event) => {
+  const authSubmitHandler = async (event) => {
     event.preventDefault()
-    console.log(formState.inputs)
+    
+    if (isLoginMode) {
+      
+    } else {
+        try {
+          const response = await fetch(`${baseURL}/users/signup`, {
+            method: "POST",
+            body: JSON.stringify({
+              name: formState.inputs.name.value,
+              email: formState.inputs.email.value,
+              password: formState.inputs.password.value,
+            }),
+            headers: {
+              "Content-Type": "application/json",
+            }
+          });
+
+          const responseData = await response.json()
+          console.log(responseData)
+        } catch(error) {
+          console.log('error: ', error)
+        }
+    }
+    
     auth.login()
   }
   
