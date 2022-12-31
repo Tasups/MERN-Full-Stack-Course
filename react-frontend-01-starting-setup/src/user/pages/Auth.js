@@ -1,5 +1,4 @@
 import React, { useState, useContext } from 'react'
-import fetch from 'node-fetch'
 
 import Card from '../../shared/components/UIElements/Card'
 import Button from '../../shared/components/FormElements/Button'
@@ -8,6 +7,7 @@ import ErrorModal from '../../shared/components/UIElements/ErrorModal'
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner'
 import { VALIDATOR_EMAIL, VALIDATOR_MINLENGTH, VALIDATOR_REQUIRE } from '../../shared/util/validators'
 import { useForm } from '../../shared/hooks/form-hook'
+import { useHttpClient } from '../../shared/hooks/http-hook'
 import { AuthContext } from '../../shared/context/auth-context'
 import './Auth.css'
 
@@ -17,8 +17,7 @@ const Auth = () => {
   
   const auth = useContext(AuthContext)
   const [isLoginMode, setIsLoginMode] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState()
+  const { isLoading, error, sendRequest, clearError } = useHttpClient()
   
   const [formState, inputHandler, setFormData] = useForm({
     email: {
@@ -34,57 +33,47 @@ const Auth = () => {
   
   const authSubmitHandler = async (event) => {
     event.preventDefault()
-    setIsLoading(true);
     
     if (isLoginMode) {
       try {
-        const response = await fetch(`${baseURL}/users/login`, {
-          method: "POST",
-          body: JSON.stringify({
-            email: formState.inputs.email.value,
-            password: formState.inputs.password.value,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        setIsLoading(false);
+        await sendRequest(
+        `${baseURL}/users/login`, 
+        "POST",
+        JSON.stringify({
+          email: formState.inputs.email.value,
+          password: formState.inputs.password.value,
+        }),
+        {
+          "Content-Type": "application/json",
+        },
+        );
+        
         auth.login();
+        
       } catch (error) {
-        console.log("error: ", error);
-        setIsLoading(false);
-        setError(error.message || "Something went wrong, please try again.");
+        console.log(error)
       }
+
     } else {
       try {
-          const response = await fetch(`${baseURL}/users/signup`, {
-            method: "POST",
-            body: JSON.stringify({
-              name: formState.inputs.name.value,
-              email: formState.inputs.email.value,
-              password: formState.inputs.password.value,
-            }),
-            headers: {
-              "Content-Type": "application/json",
-            }
-          });
+        await sendRequest(
+        `${baseURL}/users/signup`,
+        "POST",
+        JSON.stringify({
+          name: formState.inputs.name.value,
+          email: formState.inputs.email.value,
+          password: formState.inputs.password.value,
+        }),
+        {
+          "Content-Type": "application/json",
+        }
+      );
 
-        const responseData = await response.json()
-        if (!response.ok) {
-          throw new Error(responseData.message)
-        }
-        setIsLoading(false)
-        auth.login();
-        } catch(error) {
-        console.log('error: ', error)
-        setIsLoading(false)
-        setError(error.message || 'Something went wrong, please try again.')
-        }
-    }
-    setIsLoading(false)
-    
-    
+      auth.login();
+      } catch (error) {
+        console.log(error)
+      }
+    }    
   }
   
   const switchModeHandler = () => {
@@ -106,16 +95,13 @@ const Auth = () => {
     setIsLoginMode(prev => !prev)
   }
 
-  const errorHandler = () => {
-    setError(null)
-  }
-  
+
   return (
     <React.Fragment>
-      <ErrorModal error={error} onClear={errorHandler} />
+      <ErrorModal error={error} onClear={clearError} />
       <Card className="authentication">
         {isLoading && <LoadingSpinner asOverlay />}
-        <h2>LOGIN REQUIRED</h2>
+        {isLoginMode ? <h2>LOGIN REQUIRED</h2> : <h2>PLEASE SIGNUP</h2>}
         <hr />
         <form onSubmit={authSubmitHandler}>
           {!isLoginMode && (
