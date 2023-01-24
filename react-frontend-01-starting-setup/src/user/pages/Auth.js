@@ -36,7 +36,7 @@ const Auth = () => {
     
     if (isLoginMode) {
       try {
-        await sendRequest(
+        const responseData = await sendRequest(
         `${baseURL}/users/login`, 
         "POST",
         JSON.stringify({
@@ -48,7 +48,7 @@ const Auth = () => {
         },
         );
         
-        auth.login();
+        auth.login(responseData.user.id);
         
       } catch (error) {
         console.log(error)
@@ -56,7 +56,7 @@ const Auth = () => {
 
     } else {
       try {
-        await sendRequest(
+        const responseData = await sendRequest(
         `${baseURL}/users/signup`,
         "POST",
         JSON.stringify({
@@ -69,7 +69,8 @@ const Auth = () => {
         }
       );
 
-      auth.login();
+        auth.login(responseData.user.id);
+        
       } catch (error) {
         console.log(error)
       }
