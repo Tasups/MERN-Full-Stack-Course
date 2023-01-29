@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useEffect, useState, useContext } from 'react'
+import { useParams, useHistory } from 'react-router-dom'
 
 import Input from '../../shared/components/FormElements/Input'
 import Button from '../../shared/components/FormElements/Button'
@@ -9,12 +9,15 @@ import ErrorModal from '../../shared/components/UIElements/ErrorModal'
 import { VALIDATOR_REQUIRE, VALIDATOR_MINLENGTH } from '../../shared/util/validators' 
 import { useForm } from '../../shared/hooks/form-hook'
 import { useHttpClient } from '../../shared/hooks/http-hook'
+import { AuthContext } from '../../shared/context/auth-context'
 import "./FormPlace.css";
 
 
 const UpdatePlace = () => {
+  const auth = useContext(AuthContext)
   const { isLoading, error, sendRequest, clearError } = useHttpClient()
   const [loadedPlace, setLoadedPlace] = useState();
+  const history = useHistory()
   const placeId = useParams().placeId
   
   const [formState, inputHandler, setFormData] = useForm({
@@ -49,14 +52,28 @@ const UpdatePlace = () => {
         },
         true
         );
+        console.log(placeId)
       } catch (err) { }
     }
     fetchPlace()
   }, [sendRequest, placeId, setFormData])
   
-  const updatePlaceSubmitHandler = event => {
+  const updatePlaceSubmitHandler = async event => {
     event.preventDefault()
-    console.log(formState.inputs)
+    try {
+      await sendRequest(
+        `http://localhost/5000/api/places/${placeId}`,
+        'PATCH',
+        JSON.stringify({
+          title: formState.inputs.title.value,
+          description: formState.inputs.description.value,
+        }),
+        {
+          "Content-Type": "application/json",
+        }
+      );
+      history.push('/' + auth.userId + '/places')
+    } catch (err) { }
   }
 
   if (isLoading) {
@@ -81,7 +98,7 @@ const UpdatePlace = () => {
   return (
     <React.Fragment>
       {<ErrorModal error={error} onClear={clearError} />}
-      {!isLoading && loadedPlace &&
+      {!isLoading && loadedPlace && (
         <form className="place-form" onSubmit={updatePlaceSubmitHandler}>
           <Input
             id="title"
@@ -108,7 +125,7 @@ const UpdatePlace = () => {
             UPDATE PLACE
           </Button>
         </form>
-      }
+      )}
     </React.Fragment>
   );
 }
