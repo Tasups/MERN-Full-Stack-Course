@@ -9,7 +9,6 @@ import {useHttpClient} from '../../shared/hooks/http-hook'
 const UserPlaces = (props) => {
   const [loadedPlaces, setLoadedPlaces] = useState()
   const { isLoading, error, sendRequest, clearError } = useHttpClient()
-
   const userId = useParams().userId
 
   useEffect(() => {
@@ -22,6 +21,10 @@ const UserPlaces = (props) => {
     fetchPlaces()
   }, [sendRequest, userId])
 
+  const placeDeleteHandler = deletedPlaceId => {
+    setLoadedPlaces(prevPlaces => prevPlaces.filter(place => place.id !== deletedPlaceId))
+  }
+
   return (
     <React.Fragment>
       <ErrorModal error={error} onClear={clearError} />
@@ -30,7 +33,9 @@ const UserPlaces = (props) => {
           <LoadingSpinner asOverlay />
         </div>
       )}
-      {!isLoading && loadedPlaces && <PlaceList items={loadedPlaces} />}
+      {!isLoading && loadedPlaces && (
+        <PlaceList items={loadedPlaces} onDeletePlace={placeDeleteHandler} />
+      )}
     </React.Fragment>
   );
 }

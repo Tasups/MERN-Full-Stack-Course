@@ -57,13 +57,13 @@ const UpdatePlace = () => {
     }
     fetchPlace()
   }, [sendRequest, placeId, setFormData])
-  
-  const updatePlaceSubmitHandler = async event => {
-    event.preventDefault()
+
+  const placeUpdateSubmitHandler = async (event) => {
+    event.preventDefault();
     try {
       await sendRequest(
-        `http://localhost/5000/api/places/${placeId}`,
-        'PATCH',
+        `http://localhost:5000/api/places/${placeId}`,
+        "PATCH",
         JSON.stringify({
           title: formState.inputs.title.value,
           description: formState.inputs.description.value,
@@ -72,9 +72,27 @@ const UpdatePlace = () => {
           "Content-Type": "application/json",
         }
       );
-      history.push('/' + auth.userId + '/places')
-    } catch (err) { }
-  }
+      history.push("/" + auth.userId + "/places");
+    } catch (err) {}
+  };
+  
+  // const updatePlaceSubmitHandler = async event => {
+  //   event.preventDefault()
+  //   try {
+  //     await sendRequest(
+  //       `http://localhost:5000/api/places/${placeId}`,
+  //       "PATCH",
+  //       JSON.stringify({
+  //         title: formState.inputs.title.value,
+  //         description: formState.inputs.description.value,
+  //       }),
+  //       {
+  //         "Content-Type": "application/json",
+  //       }
+  //     );
+  //     history.push('/' + auth.userId + '/places')
+  //   } catch (err) { }
+  // }
 
   if (isLoading) {
     return (
@@ -99,7 +117,7 @@ const UpdatePlace = () => {
     <React.Fragment>
       {<ErrorModal error={error} onClear={clearError} />}
       {!isLoading && loadedPlace && (
-        <form className="place-form" onSubmit={updatePlaceSubmitHandler}>
+        <form className="place-form" onSubmit={placeUpdateSubmitHandler}>
           <Input
             id="title"
             element="input"
