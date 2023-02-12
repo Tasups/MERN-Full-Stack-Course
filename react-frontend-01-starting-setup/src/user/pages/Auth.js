@@ -30,12 +30,39 @@ const Auth = () => {
       isValid: false
     },
   },
-  false)
+    false)
+  
+  const switchModeHandler = () => {
+    if (!isLoginMode) {
+      setFormData(
+        {
+          ...formState.inputs,
+          name: undefined,
+          image: undefined,
+        },
+        formState.inputs.email.isValid && formState.inputs.password.isValid
+      );
+    } else {
+      setFormData(
+        {
+          ...formState.inputs,
+          name: {
+            value: "",
+            isValid: false,
+          },
+          image: {
+            value: null,
+            isValid: false,
+          },
+        },
+        false
+      );
+    }
+    setIsLoginMode((prev) => !prev);
+  };
   
   const authSubmitHandler = async (event) => {
     event.preventDefault()
-
-    console.log(formState.inputs)
     
     if (isLoginMode) {
       try {
@@ -59,52 +86,24 @@ const Auth = () => {
 
     } else {
       try {
+        const formData = new FormData();
+        formData.append("email", formState.inputs.email.value);
+        formData.append("name", formState.inputs.name.value);
+        formData.append("password", formState.inputs.password.value);
+        formData.append("image", formState.inputs.image.value);
         const responseData = await sendRequest(
-        `${baseURL}/users/signup`,
-        "POST",
-        JSON.stringify({
-          name: formState.inputs.name.value,
-          email: formState.inputs.email.value,
-          password: formState.inputs.password.value,
-        }),
-        {
-          "Content-Type": "application/json",
-        }
-      );
+          "http://localhost:5000/api/users/signup",
+          "POST",
+          formData,
+        )
+        console.log(formState.inputs)
 
         auth.login(responseData.user.id);
-        
-      } catch (error) {
-        console.log(error)
-      }
+
+      } catch (error) { }
     }    
   }
   
-  const switchModeHandler = () => {
-    if(!isLoginMode){
-      setFormData({
-        ...formState.inputs,
-        name: undefined,
-        image: undefined,
-      },
-        formState.inputs.email.isValid && formState.inputs.password.isValid)
-    } else
-    {
-      setFormData({
-        ...formState.inputs,
-        name: {
-          value: '',
-          isValid: false
-        }, 
-        image: {
-          value: null,
-          isValid: false
-        }
-      }, false)
-    }
-    setIsLoginMode(prev => !prev)
-  }
-
 
   return (
     <React.Fragment>
