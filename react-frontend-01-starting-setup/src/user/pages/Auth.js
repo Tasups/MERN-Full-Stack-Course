@@ -78,12 +78,10 @@ const Auth = () => {
         },
         );
         
-        auth.login(responseData.user.id);
-        
+        auth.login(responseData.userId, responseData.token);
       } catch (error) {
         console.log(error)
       }
-
     } else {
       try {
         const formData = new FormData();
@@ -98,7 +96,7 @@ const Auth = () => {
         )
         console.log(formState.inputs)
 
-        auth.login(responseData.user.id);
+        auth.login(responseData.userId, responseData.token);
 
       } catch (error) { }
     }    
