@@ -1,13 +1,14 @@
 import React, { useState, useContext } from 'react'
-import fetch from 'node-fetch'
 
 import Card from '../../shared/components/UIElements/Card'
 import Button from '../../shared/components/FormElements/Button'
 import Input from '../../shared/components/FormElements/Input'
 import ErrorModal from '../../shared/components/UIElements/ErrorModal'
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner'
+import ImageUpload from '../../shared/components/FormElements/ImageUpload'
 import { VALIDATOR_EMAIL, VALIDATOR_MINLENGTH, VALIDATOR_REQUIRE } from '../../shared/util/validators'
 import { useForm } from '../../shared/hooks/form-hook'
+import { useHttpClient } from '../../shared/hooks/http-hook'
 import { AuthContext } from '../../shared/context/auth-context'
 import './Auth.css'
 
@@ -17,8 +18,7 @@ const Auth = () => {
   
   const auth = useContext(AuthContext)
   const [isLoginMode, setIsLoginMode] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState()
+  const { isLoading, error, sendRequest, clearError } = useHttpClient()
   
   const [formState, inputHandler, setFormData] = useForm({
     email: {
@@ -30,96 +30,85 @@ const Auth = () => {
       isValid: false
     },
   },
-  false)
+    false)
+  
+  const switchModeHandler = () => {
+    if (!isLoginMode) {
+      setFormData(
+        {
+          ...formState.inputs,
+          name: undefined,
+          image: undefined,
+        },
+        formState.inputs.email.isValid && formState.inputs.password.isValid
+      );
+    } else {
+      setFormData(
+        {
+          ...formState.inputs,
+          name: {
+            value: "",
+            isValid: false,
+          },
+          image: {
+            value: null,
+            isValid: false,
+          },
+        },
+        false
+      );
+    }
+    setIsLoginMode((prev) => !prev);
+  };
   
   const authSubmitHandler = async (event) => {
     event.preventDefault()
-    setIsLoading(true);
     
     if (isLoginMode) {
       try {
-        const response = await fetch(`${baseURL}/users/login`, {
-          method: "POST",
-          body: JSON.stringify({
-            email: formState.inputs.email.value,
-            password: formState.inputs.password.value,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        const responseData = await response.json();
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
-        setIsLoading(false);
-        auth.login();
+        const responseData = await sendRequest(
+        `${baseURL}/users/login`, 
+        "POST",
+        JSON.stringify({
+          email: formState.inputs.email.value,
+          password: formState.inputs.password.value,
+        }),
+        {
+          "Content-Type": "application/json",
+        },
+        );
+        
+        auth.login(responseData.userId, responseData.token);
       } catch (error) {
-        console.log("error: ", error);
-        setIsLoading(false);
-        setError(error.message || "Something went wrong, please try again.");
+        console.log(error)
       }
     } else {
       try {
-          const response = await fetch(`${baseURL}/users/signup`, {
-            method: "POST",
-            body: JSON.stringify({
-              name: formState.inputs.name.value,
-              email: formState.inputs.email.value,
-              password: formState.inputs.password.value,
-            }),
-            headers: {
-              "Content-Type": "application/json",
-            }
-          });
+        const formData = new FormData();
+        formData.append("email", formState.inputs.email.value);
+        formData.append("name", formState.inputs.name.value);
+        formData.append("password", formState.inputs.password.value);
+        formData.append("image", formState.inputs.image.value);
+        const responseData = await sendRequest(
+          "http://localhost:5000/api/users/signup",
+          "POST",
+          formData,
+        )
+        console.log(formState.inputs)
 
-        const responseData = await response.json()
-        if (!response.ok) {
-          throw new Error(responseData.message)
-        }
-        setIsLoading(false)
-        auth.login();
-        } catch(error) {
-        console.log('error: ', error)
-        setIsLoading(false)
-        setError(error.message || 'Something went wrong, please try again.')
-        }
-    }
-    setIsLoading(false)
-    
-    
+        auth.login(responseData.userId, responseData.token);
+
+      } catch (error) { }
+    }    
   }
   
-  const switchModeHandler = () => {
-    if(!isLoginMode){
-      setFormData({
-        ...formState.inputs,
-        name: undefined,
-      }, formState.inputs.email.isValid && formState.inputs.password.isValid)
-    } else
-    {
-      setFormData({
-        ...formState.inputs,
-        name: {
-          value: '',
-          isValid: false
-        }
-      }, false)
-    }
-    setIsLoginMode(prev => !prev)
-  }
 
-  const errorHandler = () => {
-    setError(null)
-  }
-  
   return (
     <React.Fragment>
-      <ErrorModal error={error} onClear={errorHandler} />
+      <ErrorModal error={error} onClear={clearError} />
       <Card className="authentication">
         {isLoading && <LoadingSpinner asOverlay />}
-        <h2>LOGIN REQUIRED</h2>
+        {isLoginMode ? <h2>LOGIN REQUIRED</h2> : <h2>PLEASE SIGNUP</h2>}
         <hr />
         <form onSubmit={authSubmitHandler}>
           {!isLoginMode && (
@@ -133,6 +122,7 @@ const Auth = () => {
               onInput={inputHandler}
             />
           )}
+          {!isLoginMode && <ImageUpload id="image" center onInput={inputHandler} errorText="Please provide an image." />}
           <Input
             id="email"
             element="input"
