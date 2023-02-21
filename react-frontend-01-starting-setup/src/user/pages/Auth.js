@@ -12,8 +12,6 @@ import { useHttpClient } from '../../shared/hooks/http-hook'
 import { AuthContext } from '../../shared/context/auth-context'
 import './Auth.css'
 
-const baseURL = 'http://localhost:5000/api'
-
 const Auth = () => {
   
   const auth = useContext(AuthContext)
@@ -67,7 +65,7 @@ const Auth = () => {
     if (isLoginMode) {
       try {
         const responseData = await sendRequest(
-        `${baseURL}/users/login`, 
+        `${process.env.REACT_APP_BACKEND_URL}/users/login`, 
         "POST",
         JSON.stringify({
           email: formState.inputs.email.value,
@@ -90,10 +88,10 @@ const Auth = () => {
         formData.append("password", formState.inputs.password.value);
         formData.append("image", formState.inputs.image.value);
         const responseData = await sendRequest(
-          "http://localhost:5000/api/users/signup",
+          `${process.env.REACT_APP_BACKEND_URL}/users/signup`,
           "POST",
-          formData,
-        )
+          formData
+        );
         console.log(formState.inputs)
 
         auth.login(responseData.userId, responseData.token);

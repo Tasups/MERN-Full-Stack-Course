@@ -48,16 +48,21 @@ const NewPlace = () => {
       formData.append("description", formState.inputs.description.value);
       formData.append("address", formState.inputs.address.value);
       formData.append("image", formState.inputs.image.value);
-      await sendRequest("http://localhost:5000/api/places", "POST", formData, {
-        Authorization: 'Bearer ' + auth.token
-      });
+      await sendRequest(
+        `${process.env.REACT_APP_BACKEND_URL}/places`,
+        "POST",
+        formData,
+        {
+          Authorization: "Bearer " + auth.token,
+        }
+      );
       console.log(formState.inputs);
       history.push("/");
     } catch (err) {}
   };
   // try {
   //   await sendRequest(
-  //     "http://localhost:5000/api/places",
+  //     `${process.env.REACT_APP_BACKEND_URL}/places`,
   //     "POST",
   //     JSON.stringify({
   //       title: formState.inputs.title.value,

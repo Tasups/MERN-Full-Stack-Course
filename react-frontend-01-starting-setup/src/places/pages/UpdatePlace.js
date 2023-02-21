@@ -14,55 +14,57 @@ import "./FormPlace.css";
 
 
 const UpdatePlace = () => {
-  const auth = useContext(AuthContext)
-  const { isLoading, error, sendRequest, clearError } = useHttpClient()
+  const auth = useContext(AuthContext);
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [loadedPlace, setLoadedPlace] = useState();
-  const history = useHistory()
-  const placeId = useParams().placeId
-  
-  const [formState, inputHandler, setFormData] = useForm({
-    title: {
-      value: '',
-      isValid: false
-    },  
-    description: {
-      value: '',
-      isValid: false
-    }
-  },
-  false)
-  
+  const history = useHistory();
+  const placeId = useParams().placeId;
+
+  const [formState, inputHandler, setFormData] = useForm(
+    {
+      title: {
+        value: "",
+        isValid: false,
+      },
+      description: {
+        value: "",
+        isValid: false,
+      },
+    },
+    false
+  );
+
   useEffect(() => {
     const fetchPlace = async () => {
       try {
         const responseData = await sendRequest(
-          `http://localhost:5000/api/places/${placeId}`
+          `${process.env.REACT_APP_BACKEND_URL}/places/${placeId}`
         );
-        setLoadedPlace(responseData.place)
+        setLoadedPlace(responseData.place);
         setFormData(
           {
             title: {
-            value: responseData.place.title,
-            isValid: true,
-          },
+              value: responseData.place.title,
+              isValid: true,
+            },
             description: {
-            value: responseData.place.description,
-            isValid: true,
+              value: responseData.place.description,
+              isValid: true,
+            },
           },
-        },
-        true
+          true
         );
-        console.log(placeId)
-      } catch (err) { }
-    }
-    fetchPlace()
-  }, [sendRequest, placeId, setFormData])
+        console.log(placeId);
+      } catch (err) {}
+    };
+    fetchPlace();
+  }, [sendRequest, placeId, setFormData]);
 
   const placeUpdateSubmitHandler = async (event) => {
     event.preventDefault();
     try {
       await sendRequest(
-        `http://localhost:5000/api/places/${placeId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/places/${placeId}`,
         "PATCH",
         JSON.stringify({
           title: formState.inputs.title.value,
@@ -70,18 +72,18 @@ const UpdatePlace = () => {
         }),
         {
           "Content-Type": "application/json",
-          Authorization: 'Bearer ' + auth.token
+          Authorization: "Bearer " + auth.token,
         }
       );
       history.push("/" + auth.userId + "/places");
     } catch (err) {}
   };
-  
+
   // const updatePlaceSubmitHandler = async event => {
   //   event.preventDefault()
   //   try {
   //     await sendRequest(
-  //       `http://localhost:5000/api/places/${placeId}`,
+  //       `${process.env.REACT_APP_BACKEND_URL}/places/${placeId}`,
   //       "PATCH",
   //       JSON.stringify({
   //         title: formState.inputs.title.value,
@@ -110,9 +112,8 @@ const UpdatePlace = () => {
           <h2>Could not find place!</h2>
         </Card>
       </div>
-    ); 
+    );
   }
-  
 
   return (
     <React.Fragment>
